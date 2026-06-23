@@ -1,0 +1,19 @@
+COHORT CLINICAL NARRATIVE SUMMARY
+
+============================================================
+
+[P1 STAR: 3f336702]
+
+Patient 3f336702 (Sanford861 Fritsch593) presents a longitudinal profile spanning 7 wave(s) (waves 1 through 7), with 7 unique conditions. BMI peaked at 27.7 in Wave 5 and trended stable. Condition burden grew in every observed wave without plateau. "Coronary Heart Disease" was most persistent, active across 6 waves. Medication count increased alongside new diagnoses in Wave 2, Wave 3, Wave 5, consistent with reactive prescribing.
+
+============================================================
+
+[P2 CONTRAST: 1930a1b6]
+
+Patient 1930a1b6 (Clint766 Deckow585) -- Contrast. Spans 7 waves with only 1 condition(s), making them the most clinically stable patient in the cohort. BMI data available. Serves as the control archetype for longitudinal stability.
+
+============================================================
+
+[P3 COMORBID: 3b95da79]
+
+Patient 3b95da79 (Millard193 Stamm704) -- Comorbid. Carries both Hypertension and Diabetes across 7 waves with 16 unique conditions. Exemplifies the dual-comorbidity burden pattern central to metabolic syndrome research.

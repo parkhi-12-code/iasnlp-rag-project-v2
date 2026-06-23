@@ -1,0 +1,13 @@
+data/raw/
+data/*.gpickle
+venv/
+.env
+__pycache__/
+*.pyc
+*.pkl
+*.gpickle
+*.npy
+.ipynb_checkpoints/
+run_*.txt
+diag.txt
+benchmark/eval_extended_output.txt

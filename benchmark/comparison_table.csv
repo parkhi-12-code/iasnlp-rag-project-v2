@@ -1,0 +1,5 @@
+Approach,Lookup,Trend,Aggregate,Multi-hop,Overall
+Naive RAG,20%,0%,16%,8%,11%
+Metadata Filtering,48%,8%,28%,8%,23%
+Knowledge Graph (v2),80%,24%,64%,0%,42%
+Text-to-Pandas,100%,100%,100%,100%,100%
