@@ -865,10 +865,118 @@ def slide_12_core_finding(prs):
                 font_size=16, color=LIGHT, align=PP_ALIGN.CENTER, italic=True)
 
 
-def slide_13_cohort_table(prs):
+def slide_13_extended_benchmark(prs):
+    """Slide 13 — Extended Benchmark: gap widens on harder questions."""
     sld = blank_slide(prs)
     fill_bg(sld)
     add_header(sld, 13)
+
+    # title
+    add_textbox(sld, Inches(0.4), Inches(0.2),
+                Inches(12.5), Inches(0.55),
+                "Extended Benchmark Confirms the Gap Widens",
+                font_size=26, bold=True, color=WHITE)
+    add_rect(sld, Inches(0.4), Inches(0.82), Inches(7.5), Inches(0.04), ACCENT)
+
+    # ── LEFT — comparison table ───────────────────────────────────────────────
+    col_labels = ["Benchmark", "KG", "T2P"]
+    col_w      = [Inches(2.6), Inches(1.2), Inches(1.2)]
+    row_h      = Inches(0.7)
+
+    table_rows = [
+        ("Standard 100Q", "42%", "100%",
+         RGBColor(0x0d, 0x40, 0x80), RGBColor(0x1b, 0x5e, 0x20)),
+        ("Extended 25Q",  "12%", "100%",
+         RGBColor(0x6d, 0x18, 0x18), RGBColor(0x1b, 0x5e, 0x20)),
+        ("Combined",      "36%", "100%",
+         RGBColor(0x1a, 0x38, 0x6d), RGBColor(0x1b, 0x5e, 0x20)),
+    ]
+
+    ty = Inches(1.1)
+    tx = Inches(0.4)
+    for w, h in zip(col_w, col_labels):
+        add_rect(sld, tx, ty, w, row_h, ACCENT)
+        add_textbox(sld, tx + Inches(0.05), ty + Inches(0.17),
+                    w - Inches(0.1), row_h,
+                    h, font_size=14, bold=True, color=WHITE, align=PP_ALIGN.CENTER)
+        tx += w
+
+    for ri, (label, kg, t2p, kg_col, t2p_col) in enumerate(table_rows):
+        ty += row_h
+        tx = Inches(0.4)
+        row_bg = DARK if ri % 2 == 0 else RGBColor(0x1e, 0x2e, 0x50)
+
+        add_rect(sld, tx, ty, col_w[0], row_h, row_bg)
+        add_textbox(sld, tx + Inches(0.1), ty + Inches(0.18),
+                    col_w[0] - Inches(0.1), row_h,
+                    label, font_size=14, bold=(ri == 1), color=WHITE)
+        tx += col_w[0]
+
+        add_rect(sld, tx, ty, col_w[1], row_h, kg_col)
+        add_textbox(sld, tx, ty + Inches(0.18),
+                    col_w[1], row_h,
+                    kg, font_size=16, bold=True, color=WHITE, align=PP_ALIGN.CENTER)
+        tx += col_w[1]
+
+        add_rect(sld, tx, ty, col_w[2], row_h, t2p_col)
+        add_textbox(sld, tx, ty + Inches(0.18),
+                    col_w[2], row_h,
+                    t2p, font_size=16, bold=True, color=WHITE, align=PP_ALIGN.CENTER)
+        tx += col_w[2]
+
+    # gap indicator bars below table
+    gap_label_y = ty + row_h + Inches(0.28)
+    add_textbox(sld, Inches(0.4), gap_label_y,
+                Inches(5.0), Inches(0.38),
+                "Gap to oracle (Text-to-Pandas = 100%)",
+                font_size=12, bold=True, color=ACCENT)
+
+    gap_y = gap_label_y + Inches(0.44)
+    for glabel, gap_pts, gcol in [("Standard 100Q", 58, ACCENT),
+                                   ("Extended 25Q",  88, RED)]:
+        bar_w = Inches(gap_pts / 100.0 * 4.4)
+        add_textbox(sld, Inches(0.4), gap_y,
+                    Inches(1.6), Inches(0.36),
+                    glabel, font_size=11, color=LIGHT)
+        add_rect(sld, Inches(2.1), gap_y + Inches(0.05),
+                 bar_w, Inches(0.26), gcol)
+        add_textbox(sld, Inches(2.1) + bar_w + Inches(0.1), gap_y,
+                    Inches(0.9), Inches(0.36),
+                    f"{gap_pts} pts", font_size=12, bold=True, color=WHITE)
+        gap_y += Inches(0.5)
+
+    # ── RIGHT — key insight box ───────────────────────────────────────────────
+    add_rect(sld, Inches(5.8), Inches(1.05), Inches(7.15), Inches(5.25),
+             RGBColor(0x1e, 0x33, 0x5e))
+    add_textbox(sld, Inches(5.95), Inches(1.12),
+                Inches(6.9), Inches(0.48),
+                "Key Insight", font_size=18, bold=True, color=ACCENT)
+    add_rect(sld, Inches(5.95), Inches(1.62),
+             Inches(6.9), Inches(0.03), ACCENT)
+
+    insights = [
+        "Harder questions = bigger gap",
+        "Pattern discovery: 88-point gap",
+        "Fact retrieval: 58-point gap",
+        "Symbolic computation advantage\ngrows with question complexity",
+    ]
+    add_bullet_box(sld, Inches(5.95), Inches(1.75),
+                   Inches(6.85), Inches(4.35),
+                   insights, font_size=17, color=WHITE)
+
+    # ── BOTTOM strip ─────────────────────────────────────────────────────────
+    add_rect(sld, 0, Inches(6.38), SLIDE_W, Inches(0.72), DARK)
+    add_textbox(sld, Inches(0.4), Inches(6.44),
+                Inches(12.5), Inches(0.58),
+                "Extended benchmark deliberately tests co-occurrence, trajectory, "
+                "medication patterns — the questions clinicians actually ask",
+                font_size=14, color=LIGHT, align=PP_ALIGN.CENTER, italic=True)
+
+
+def slide_13_cohort_table(prs):
+    sld = blank_slide(prs)
+    fill_bg(sld)
+    add_header(sld, 14)
 
     add_textbox(sld, Inches(0.4), Inches(0.2),
                 Inches(9.0), Inches(0.55),
@@ -935,7 +1043,7 @@ def slide_13_cohort_table(prs):
 def slide_14_deep_dive(prs):
     sld = blank_slide(prs)
     fill_bg(sld)
-    add_header(sld, 14)
+    add_header(sld, 15)
 
     add_textbox(sld, Inches(0.4), Inches(0.2),
                 Inches(9.0), Inches(0.55),
@@ -982,7 +1090,7 @@ def slide_14_deep_dive(prs):
 def slide_15_failure_analysis(prs):
     sld = blank_slide(prs)
     fill_bg(sld)
-    add_header(sld, 15)
+    add_header(sld, 16)
 
     add_textbox(sld, Inches(0.4), Inches(0.2),
                 Inches(9.0), Inches(0.55),
@@ -1027,7 +1135,7 @@ def slide_15_failure_analysis(prs):
 def slide_16_conclusion(prs):
     sld = blank_slide(prs)
     fill_bg(sld)
-    add_header(sld, 16)
+    add_header(sld, 17)
 
     add_textbox(sld, Inches(0.4), Inches(0.2),
                 Inches(9.0), Inches(0.55),
@@ -1087,22 +1195,23 @@ def main():
     prs = new_prs()
 
     print("Building slides...")
-    slide_01_title(prs)           ; print("  [1/16] Title")
-    slide_02_problem(prs)         ; print("  [2/16] Problem")
-    slide_03_research_question(prs); print("  [3/16] Research Question")
-    slide_04_dataset(prs)         ; print("  [4/16] Dataset")
-    slide_05_benchmark(prs)       ; print("  [5/16] Benchmark Design")
-    slide_06_approaches(prs)      ; print("  [6/16] Approaches")
-    slide_07_kg_architecture(prs) ; print("  [7/16] KG Architecture")
-    slide_08_results_table(prs)   ; print("  [8/16] Results Table")
-    slide_09_bar_chart(prs)       ; print("  [9/16] Bar Chart")
-    slide_10_finding1(prs)        ; print("  [10/16] Finding 1")
-    slide_11_finding2(prs)        ; print("  [11/16] Finding 2")
-    slide_12_core_finding(prs)    ; print("  [12/16] Core Finding")
-    slide_13_cohort_table(prs)    ; print("  [13/16] Cohort Table")
-    slide_14_deep_dive(prs)       ; print("  [14/16] Patient Deep Dive")
-    slide_15_failure_analysis(prs); print("  [15/16] Failure Analysis")
-    slide_16_conclusion(prs)      ; print("  [16/16] Conclusion")
+    slide_01_title(prs)               ; print("  [1/17] Title")
+    slide_02_problem(prs)             ; print("  [2/17] Problem")
+    slide_03_research_question(prs)   ; print("  [3/17] Research Question")
+    slide_04_dataset(prs)             ; print("  [4/17] Dataset")
+    slide_05_benchmark(prs)           ; print("  [5/17] Benchmark Design")
+    slide_06_approaches(prs)          ; print("  [6/17] Approaches")
+    slide_07_kg_architecture(prs)     ; print("  [7/17] KG Architecture")
+    slide_08_results_table(prs)       ; print("  [8/17] Results Table")
+    slide_09_bar_chart(prs)           ; print("  [9/17] Bar Chart")
+    slide_10_finding1(prs)            ; print("  [10/17] Finding 1")
+    slide_11_finding2(prs)            ; print("  [11/17] Finding 2")
+    slide_12_core_finding(prs)        ; print("  [12/17] Core Finding")
+    slide_13_extended_benchmark(prs)  ; print("  [13/17] Extended Benchmark")
+    slide_13_cohort_table(prs)        ; print("  [14/17] Cohort Table")
+    slide_14_deep_dive(prs)           ; print("  [15/17] Patient Deep Dive")
+    slide_15_failure_analysis(prs)    ; print("  [16/17] Failure Analysis")
+    slide_16_conclusion(prs)          ; print("  [17/17] Conclusion")
 
     prs.save(out_path)
     print(f"\nSaved: {out_path}")
