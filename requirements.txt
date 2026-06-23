@@ -5,3 +5,4 @@ pyvis
 matplotlib
 sentence-transformers
 python-dotenv
+python-docx
