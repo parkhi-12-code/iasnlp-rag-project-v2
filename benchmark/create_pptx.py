@@ -222,6 +222,37 @@ def make_failure_pie():
     return chart_to_image(fig)
 
 
+def make_handler_progression_chart():
+    """Bar chart: accuracy across 4 Text-to-Pandas development runs."""
+    runs   = ["Run 1\n(9 handlers)", "Run 2\n(22 handlers)", "Run 3\n(33 handlers)", "Run 4\n(33 fixed)"]
+    acc    = [26, 40, 76, 98]
+    colors = ["#1565C0", "#1976D2", "#0288D1", "#4CAF50"]
+
+    fig, ax = plt.subplots(figsize=(9, 4.5))
+    fig.patch.set_facecolor("#1a2744")
+    ax.set_facecolor("#1a2744")
+
+    bars = ax.bar(runs, acc, color=colors, alpha=0.92, width=0.5, zorder=3)
+    for bar, v in zip(bars, acc):
+        ax.text(bar.get_x() + bar.get_width() / 2, v + 1.5,
+                f"{v}%", ha="center", va="bottom",
+                color="white", fontsize=14, fontweight="bold")
+
+    ax.axhline(100, color="#4CAF50", linewidth=1.5, linestyle="--", alpha=0.6, zorder=2)
+    ax.text(3.35, 101.5, "Oracle 100%", color="#4CAF50", fontsize=10, ha="right")
+    ax.set_ylim(0, 112)
+    ax.set_yticks(range(0, 101, 20))
+    ax.set_yticklabels([f"{v}%" for v in range(0, 101, 20)], color="white", fontsize=10)
+    ax.set_ylabel("V2 Benchmark Accuracy", color="white", fontsize=11)
+    ax.tick_params(colors="white")
+    for spine in ax.spines.values():
+        spine.set_edgecolor("#2196F3")
+    ax.grid(axis="y", color="#2a3a5a", linewidth=0.7, zorder=0)
+    ax.set_xticklabels(runs, color="white", fontsize=11)
+    fig.tight_layout()
+    return chart_to_image(fig)
+
+
 def make_wave_diagram():
     """Simple wave bar diagram showing dataset size per wave."""
     waves = [f"W{i}" for i in range(1, 8)]
@@ -672,10 +703,48 @@ def slide_08_results_table(prs):
                         align=PP_ALIGN.CENTER if ci > 0 else PP_ALIGN.LEFT)
             tx += w
 
-    add_textbox(sld, Inches(0.4), Inches(6.2),
-                Inches(12.5), Inches(0.35),
-                "KG v2 = best retrieval-only system · Text-to-Pandas = symbolic oracle upper bound",
-                font_size=12, color=LIGHT, italic=True)
+    # ── V2 Diverse Benchmark (50 novel Q) mini-table ─────────────────────────
+    add_textbox(sld, Inches(0.4), Inches(4.65),
+                Inches(9.0), Inches(0.32),
+                "V2 Diverse Benchmark (50 novel question templates — harder test)",
+                font_size=12, bold=True, color=ACCENT)
+
+    v2_headers = ["Approach", "Aggregate", "Multi-hop", "Overall"]
+    v2_col_w   = [Inches(3.4), Inches(2.1), Inches(2.0), Inches(2.0)]
+    v2_row_h   = Inches(0.42)
+
+    v2_data = [
+        ("Naive RAG",       "0%",  "0%",   "0%",  RGBColor(0x4a, 0x10, 0x10)),
+        ("Knowledge Graph", "4%",  "0%",   "2%",  RGBColor(0x0d, 0x27, 0x4a)),
+        ("Text-to-Pandas",  "96%", "100%", "98%", RGBColor(0x1b, 0x4a, 0x2a)),
+    ]
+
+    v2_ty = Inches(5.0)
+    tx = Inches(0.4)
+    for w, h in zip(v2_col_w, v2_headers):
+        add_rect(sld, tx, v2_ty, w, v2_row_h, ACCENT)
+        add_textbox(sld, tx + Inches(0.05), v2_ty + Inches(0.1),
+                    w - Inches(0.1), v2_row_h,
+                    h, font_size=12, bold=True, color=WHITE, align=PP_ALIGN.CENTER)
+        tx += w
+
+    for approach, agg, mh, overall, row_bg in v2_data:
+        v2_ty += v2_row_h
+        tx = Inches(0.4)
+        for w, val in zip(v2_col_w, [approach, agg, mh, overall]):
+            add_rect(sld, tx, v2_ty, w, v2_row_h, row_bg)
+            is_center = (val != approach)
+            bold = (approach == "Text-to-Pandas")
+            add_textbox(sld, tx + Inches(0.05), v2_ty + Inches(0.1),
+                        w - Inches(0.1), v2_row_h,
+                        val, font_size=12, bold=bold, color=WHITE,
+                        align=PP_ALIGN.CENTER if is_center else PP_ALIGN.LEFT)
+            tx += w
+
+    add_textbox(sld, Inches(0.4), Inches(6.42),
+                Inches(12.5), Inches(0.3),
+                "V1 (top): KG v2 best retrieval-only at 42% · V2 (bottom): gap widens — T2P 98% vs KG 2% vs RAG 0%",
+                font_size=11, color=LIGHT, italic=True)
 
 
 def slide_09_bar_chart(prs):
@@ -859,17 +928,83 @@ def slide_12_core_finding(prs):
                     label, font_size=14, color=WHITE, align=PP_ALIGN.CENTER)
         bx += Inches(4.2)
 
-    add_textbox(sld, Inches(0.5), Inches(5.9),
-                Inches(12.33), Inches(0.7),
+    # V2 diverse benchmark banner
+    add_rect(sld, Inches(0.5), Inches(5.68), Inches(12.33), Inches(0.48),
+             RGBColor(0x0d, 0x27, 0x4a))
+    add_textbox(sld, Inches(0.65), Inches(5.72),
+                Inches(12.0), Inches(0.42),
+                "V2 Diverse Benchmark (50 novel questions) — gap widens further:  "
+                "T2P 98%  ·  KG 2%  ·  Naive RAG 0%",
+                font_size=14, bold=True, color=ACCENT, align=PP_ALIGN.CENTER)
+
+    add_textbox(sld, Inches(0.5), Inches(6.24),
+                Inches(12.33), Inches(0.45),
                 "Hybrid architecture (graph retrieval + pandas code generation) is required to close the gap.",
-                font_size=16, color=LIGHT, align=PP_ALIGN.CENTER, italic=True)
+                font_size=14, color=LIGHT, align=PP_ALIGN.CENTER, italic=True)
 
 
-def slide_13_extended_benchmark(prs):
-    """Slide 13 — Extended Benchmark: gap widens on harder questions."""
+def slide_handler_progression(prs):
+    """Slide 13 — Text-to-Pandas handler progression: 26% → 98%."""
     sld = blank_slide(prs)
     fill_bg(sld)
     add_header(sld, 13)
+
+    add_textbox(sld, Inches(0.4), Inches(0.2),
+                Inches(12.5), Inches(0.55),
+                "Text-to-Pandas: Handler Progression 26% → 98%",
+                font_size=26, bold=True, color=WHITE)
+    add_rect(sld, Inches(0.4), Inches(0.82), Inches(7.0), Inches(0.04), ACCENT)
+
+    # bar chart (left side)
+    buf = make_handler_progression_chart()
+    add_image_from_buf(sld, buf,
+                       Inches(0.3), Inches(0.95),
+                       Inches(8.2), Inches(5.6))
+
+    # right side — run details
+    add_rect(sld, Inches(8.7), Inches(0.95), Inches(4.3), Inches(5.6),
+             RGBColor(0x1e, 0x33, 0x5e))
+    add_textbox(sld, Inches(8.85), Inches(1.05),
+                Inches(4.0), Inches(0.45),
+                "What changed each run", font_size=16, bold=True, color=ACCENT)
+    add_rect(sld, Inches(8.85), Inches(1.52), Inches(4.0), Inches(0.03), ACCENT)
+
+    run_details = [
+        ("Run 1 — 26%",  "#1565C0",
+         "9 core handlers\nLookup + basic wave\nscoping only"),
+        ("Run 2 — 40%",  "#1976D2",
+         "22 handlers\n+13 trend & aggregate\nhandlers added"),
+        ("Run 3 — 76%",  "#0288D1",
+         "33 handlers\n+11 multi-hop\nhandlers added"),
+        ("Run 4 — 98%",  "#4CAF50",
+         "33 handlers (fixed)\nBug: missing .lower()\npattern matching fixed"),
+    ]
+    ry = Inches(1.6)
+    for label, col, desc in run_details:
+        add_rect(sld, Inches(8.85), ry, Inches(4.0), Inches(1.15),
+                 RGBColor.from_string(col[1:]))
+        add_textbox(sld, Inches(8.95), ry + Inches(0.06),
+                    Inches(3.8), Inches(0.36),
+                    label, font_size=13, bold=True, color=WHITE)
+        add_textbox(sld, Inches(8.95), ry + Inches(0.44),
+                    Inches(3.8), Inches(0.65),
+                    desc, font_size=11, color=WHITE)
+        ry += Inches(1.22)
+
+    # bottom insight strip
+    add_rect(sld, 0, Inches(6.65), SLIDE_W, Inches(0.65), DARK)
+    add_textbox(sld, Inches(0.4), Inches(6.7),
+                Inches(12.5), Inches(0.55),
+                "Each new handler adds deterministic coverage for one class of temporal reasoning question — "
+                "architecture generalises, not memorises",
+                font_size=14, color=LIGHT, align=PP_ALIGN.CENTER, italic=True)
+
+
+def slide_13_extended_benchmark(prs):
+    """Slide 14 — Extended Benchmark: gap widens on harder questions."""
+    sld = blank_slide(prs)
+    fill_bg(sld)
+    add_header(sld, 14)
 
     # title
     add_textbox(sld, Inches(0.4), Inches(0.2),
@@ -976,7 +1111,7 @@ def slide_13_extended_benchmark(prs):
 def slide_13_cohort_table(prs):
     sld = blank_slide(prs)
     fill_bg(sld)
-    add_header(sld, 14)
+    add_header(sld, 15)
 
     add_textbox(sld, Inches(0.4), Inches(0.2),
                 Inches(9.0), Inches(0.55),
@@ -1043,7 +1178,7 @@ def slide_13_cohort_table(prs):
 def slide_14_deep_dive(prs):
     sld = blank_slide(prs)
     fill_bg(sld)
-    add_header(sld, 15)
+    add_header(sld, 16)
 
     add_textbox(sld, Inches(0.4), Inches(0.2),
                 Inches(9.0), Inches(0.55),
@@ -1090,7 +1225,7 @@ def slide_14_deep_dive(prs):
 def slide_15_failure_analysis(prs):
     sld = blank_slide(prs)
     fill_bg(sld)
-    add_header(sld, 16)
+    add_header(sld, 17)
 
     add_textbox(sld, Inches(0.4), Inches(0.2),
                 Inches(9.0), Inches(0.55),
@@ -1135,7 +1270,7 @@ def slide_15_failure_analysis(prs):
 def slide_16_conclusion(prs):
     sld = blank_slide(prs)
     fill_bg(sld)
-    add_header(sld, 17)
+    add_header(sld, 18)
 
     add_textbox(sld, Inches(0.4), Inches(0.2),
                 Inches(9.0), Inches(0.55),
@@ -1195,23 +1330,24 @@ def main():
     prs = new_prs()
 
     print("Building slides...")
-    slide_01_title(prs)               ; print("  [1/17] Title")
-    slide_02_problem(prs)             ; print("  [2/17] Problem")
-    slide_03_research_question(prs)   ; print("  [3/17] Research Question")
-    slide_04_dataset(prs)             ; print("  [4/17] Dataset")
-    slide_05_benchmark(prs)           ; print("  [5/17] Benchmark Design")
-    slide_06_approaches(prs)          ; print("  [6/17] Approaches")
-    slide_07_kg_architecture(prs)     ; print("  [7/17] KG Architecture")
-    slide_08_results_table(prs)       ; print("  [8/17] Results Table")
-    slide_09_bar_chart(prs)           ; print("  [9/17] Bar Chart")
-    slide_10_finding1(prs)            ; print("  [10/17] Finding 1")
-    slide_11_finding2(prs)            ; print("  [11/17] Finding 2")
-    slide_12_core_finding(prs)        ; print("  [12/17] Core Finding")
-    slide_13_extended_benchmark(prs)  ; print("  [13/17] Extended Benchmark")
-    slide_13_cohort_table(prs)        ; print("  [14/17] Cohort Table")
-    slide_14_deep_dive(prs)           ; print("  [15/17] Patient Deep Dive")
-    slide_15_failure_analysis(prs)    ; print("  [16/17] Failure Analysis")
-    slide_16_conclusion(prs)          ; print("  [17/17] Conclusion")
+    slide_01_title(prs)               ; print("  [1/18] Title")
+    slide_02_problem(prs)             ; print("  [2/18] Problem")
+    slide_03_research_question(prs)   ; print("  [3/18] Research Question")
+    slide_04_dataset(prs)             ; print("  [4/18] Dataset")
+    slide_05_benchmark(prs)           ; print("  [5/18] Benchmark Design")
+    slide_06_approaches(prs)          ; print("  [6/18] Approaches")
+    slide_07_kg_architecture(prs)     ; print("  [7/18] KG Architecture")
+    slide_08_results_table(prs)       ; print("  [8/18] Results Table (V1+V2)")
+    slide_09_bar_chart(prs)           ; print("  [9/18] Bar Chart")
+    slide_10_finding1(prs)            ; print("  [10/18] Finding 1")
+    slide_11_finding2(prs)            ; print("  [11/18] Finding 2")
+    slide_12_core_finding(prs)        ; print("  [12/18] Core Finding (+V2 banner)")
+    slide_handler_progression(prs)    ; print("  [13/18] Handler Progression 26%→98%")
+    slide_13_extended_benchmark(prs)  ; print("  [14/18] Extended Benchmark")
+    slide_13_cohort_table(prs)        ; print("  [15/18] Cohort Table")
+    slide_14_deep_dive(prs)           ; print("  [16/18] Patient Deep Dive")
+    slide_15_failure_analysis(prs)    ; print("  [17/18] Failure Analysis")
+    slide_16_conclusion(prs)          ; print("  [18/18] Conclusion")
 
     prs.save(out_path)
     print(f"\nSaved: {out_path}")
