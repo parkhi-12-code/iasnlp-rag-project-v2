@@ -1,0 +1,19 @@
+V2 BENCHMARK SUMMARY (50 diverse questions)
+============================================
+25 Aggregate + 25 Multi-hop
+Each question uses unique template
+All gold answers pandas-computed
+
+SYSTEM COMPARISON:
+Naive RAG:        AGG=0% | MH=0% | TOTAL=0%
+Knowledge Graph:  AGG=0% | MH=0% | TOTAL=0%
+Text-to-Pandas:   AGG=60% | MH=20% | TOTAL=40%
+
+KEY FINDING:
+Neither Naive RAG nor Knowledge Graph can handle
+diverse temporal aggregate and multi-hop questions,
+scoring 0% on both categories. Text-to-Pandas
+outperforms both by directly computing answers
+symbolically, confirming that retrieval-based
+approaches fail when exact temporal computation
+is required.

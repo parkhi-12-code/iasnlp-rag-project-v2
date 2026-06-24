@@ -1,0 +1,4 @@
+System,Aggregate_V2,MultiHop_V2,Overall_V2,Notes
+Naive RAG,0%,0%,0%,Flat chunk cosine retrieval
+Knowledge Graph,0%,0%,0%,Graph traversal retrieval
+Text-to-Pandas,60%,20%,40%,Symbolic computation
