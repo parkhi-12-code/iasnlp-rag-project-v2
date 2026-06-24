@@ -511,18 +511,6 @@ patients_df, conditions_df, observations_df, medications_df = _load_tables()
 G              = _load_graph()
 patient_lookup = _build_lookup(patients_df)
 
-# ── DEBUG: ID format check ─────────────────────────────────────────────────────
-with st.expander("🔍 Debug: patient ID vs graph node format", expanded=True):
-    if len(patients_df) > 0:
-        st.write("Sample patient ID:", patients_df["Id"].iloc[0])
-    else:
-        st.write("patients_df is empty")
-    if G is not None and len(G.nodes()) > 0:
-        st.write("Sample graph node:", list(G.nodes())[0])
-        st.write("Total graph nodes:", G.number_of_nodes())
-    else:
-        st.write("Graph not loaded or empty")
-
 # ── HEADER ─────────────────────────────────────────────────────────────────────
 
 st.markdown("""
