@@ -338,6 +338,110 @@ def show_condition_timeline(patient_id, conditions_df, medications_df):
         st.dataframe(styled, use_container_width=True, hide_index=True)
 
 
+def show_clinical_insights(patient_id, conditions_df, observations_df, medications_df):
+    pid = str(patient_id)[:8]
+
+    pc = conditions_df[conditions_df["PATIENT"].astype(str).str.startswith(pid)].copy()
+    po = observations_df[observations_df["PATIENT"].astype(str).str.startswith(pid)].copy()
+    pm = medications_df[medications_df["PATIENT"].astype(str).str.startswith(pid)].copy()
+
+    def _wave(d):
+        y = pd.to_datetime(d, errors="coerce").year
+        if pd.isna(y): return None
+        if y <= 1994: return 1
+        elif y <= 1999: return 2
+        elif y <= 2004: return 3
+        elif y <= 2009: return 4
+        elif y <= 2014: return 5
+        elif y <= 2019: return 6
+        else: return 7
+
+    insights = []
+
+    # BMI trend
+    bmi = po[po["DESCRIPTION"].str.contains("Body Mass Index", na=False)].copy()
+    if len(bmi) > 1:
+        bmi["wave"] = bmi["DATE"].apply(_wave)
+        bmi["VALUE"] = pd.to_numeric(bmi["VALUE"], errors="coerce")
+        wave_avg = bmi.dropna(subset=["wave", "VALUE"]).groupby("wave")["VALUE"].mean()
+        if len(wave_avg) >= 2:
+            first, last = wave_avg.iloc[0], wave_avg.iloc[-1]
+            direction = "increasing ↑" if last > first + 0.5 else "decreasing ↓" if last < first - 0.5 else "stable →"
+            peak_wave, peak_val = wave_avg.idxmax(), round(wave_avg.max(), 1)
+            insights.append(
+                f"📈 **BMI trend:** {direction} from {round(first,1)} to {round(last,1)} kg/m² "
+                f"— peak {peak_val} kg/m² in Wave {peak_wave}"
+            )
+
+    # Condition accumulation
+    if not pc.empty:
+        pc["wave"] = pc["START"].apply(_wave)
+        pc = pc.dropna(subset=["wave"])
+        if not pc.empty:
+            first_wave, last_wave = int(pc["wave"].min()), int(pc["wave"].max())
+            total = pc["DESCRIPTION"].nunique()
+            if last_wave > first_wave:
+                insights.append(
+                    f"🦠 **Condition burden:** grew from Wave {first_wave} to Wave {last_wave} "
+                    f"— {total} unique conditions total"
+                )
+            chronic = pc[pc["STOP"].isna()] if "STOP" in pc.columns else pc
+            if not chronic.empty:
+                most_common = str(chronic["DESCRIPTION"].iloc[0])[:40]
+                insights.append(f"⚠️ **Chronic condition:** {most_common} (no recorded end date)")
+
+    # Medication timing
+    if not pm.empty and not pc.empty:
+        pm["wave"] = pm["START"].apply(_wave)
+        pm = pm.dropna(subset=["wave"])
+        if not pm.empty and not pc.empty and "wave" in pc.columns:
+            first_med_wave = int(pm["wave"].min())
+            first_cond_wave = int(pc["wave"].min())
+            if first_med_wave < first_cond_wave:
+                insights.append(
+                    f"💊 **Medication timing:** first prescription Wave {first_med_wave} "
+                    f"— BEFORE first diagnosis (Wave {first_cond_wave}) — preventive pattern"
+                )
+            else:
+                insights.append(
+                    f"💊 **Medication timing:** first prescription Wave {first_med_wave} "
+                    f"— after first diagnosis (Wave {first_cond_wave})"
+                )
+
+    # SBP pattern
+    sbp = po[po["DESCRIPTION"].str.contains("Systolic Blood Pressure", na=False)].copy()
+    if not sbp.empty:
+        sbp["VALUE"] = pd.to_numeric(sbp["VALUE"], errors="coerce")
+        sbp = sbp.dropna(subset=["VALUE"])
+        if not sbp.empty:
+            avg_sbp = round(float(sbp["VALUE"].mean()), 1)
+            max_sbp = float(sbp["VALUE"].max())
+            if max_sbp > 130:
+                insights.append(
+                    f"❤️ **Blood pressure:** avg SBP {avg_sbp} mm[Hg] "
+                    f"— peak {round(max_sbp,1)} mm[Hg] (above hypertension threshold)"
+                )
+            else:
+                insights.append(f"❤️ **Blood pressure:** avg SBP {avg_sbp} mm[Hg] — within normal range")
+
+    # Wave coverage
+    all_waves: set = set()
+    for df, col in [(pc, "wave"), (pm, "wave")]:
+        if not df.empty and "wave" in df.columns:
+            all_waves |= set(df["wave"].dropna().astype(int).unique())
+    if not po.empty:
+        po_waves = po["DATE"].apply(_wave).dropna().astype(int)
+        all_waves |= set(po_waves.unique())
+    if len(all_waves) > 1:
+        span_years = (max(all_waves) - min(all_waves)) * 5
+        insights.append(
+            f"📅 **Record span:** {len(all_waves)} waves covering ~{span_years} years "
+            f"(Wave {min(all_waves)} to Wave {max(all_waves)})"
+        )
+
+    return insights
+
+
 def render_patient_graph(patient_id, G,
                           conditions_df=None,
                           observations_df=None,
@@ -495,6 +599,17 @@ def render_patient_graph(patient_id, G,
             try: os.unlink(tmp)
             except OSError: pass
 
+    # Colour legend
+    st.markdown("""
+<div style="display:flex;gap:16px;font-size:11px;color:#888;margin:6px 0 12px 0">
+<span>⚫ Patient hub</span>
+<span>🔵 Wave nodes</span>
+<span>🟢 Condition nodes</span>
+<span>🟡 Observation nodes</span>
+<span>🔴 Medication nodes</span>
+</div>
+""", unsafe_allow_html=True)
+
     # Node count summary
     if node_counts:
         cols = st.columns(len(node_counts))
@@ -503,6 +618,16 @@ def render_patient_graph(patient_id, G,
                 label=ntype, value=count,
                 help=f"Number of {ntype} nodes connected to this patient",
             )
+
+    # Clinical insights
+    if conditions_df is not None and observations_df is not None and medications_df is not None:
+        st.markdown("#### 🔍 Patterns & insights detected by graph traversal")
+        insights = show_clinical_insights(patient_id, conditions_df, observations_df, medications_df)
+        if insights:
+            for insight in insights:
+                st.markdown(insight)
+        else:
+            st.caption("No patterns detected for this patient")
 
 
 # ── load data (runs once per session) ─────────────────────────────────────────
@@ -601,6 +726,17 @@ with tab1:
         )
         question_text = typed.strip() or None
 
+    pipeline_choice = st.radio(
+        "Answer using:",
+        [
+            "Knowledge Graph (v2 — 42% on original, 2% on diverse)",
+            "Text-to-Pandas (v1 — 100% on original, 98% on diverse)"
+        ],
+        horizontal=True,
+        index=1,
+        help="Switch pipelines to see the research finding live"
+    )
+
     ask_col, _ = st.columns([1, 4])
     with ask_col:
         ask_btn = st.button(
@@ -633,22 +769,31 @@ with tab1:
 
                 augmented_q = f"Patient ID: {full_id}. {question_text}"
 
-                if not _PIPELINE_OK:
-                    st.error(f"Pipeline not available: {_PIPELINE_ERR}")
-                    answer = None
-                elif not GROQ_API_KEY:
-                    st.error("GROQ_API_KEY missing — cannot query the pipeline.")
-                    answer = None
-                else:
+                if "Text-to-Pandas" in pipeline_choice:
+                    sys.path.insert(0, r"E:\iasnlp-rag-project\src")
                     try:
-                        result = run_pipeline(
-                            question=augmented_q,
-                            patient_id=full_id,
-                        )
-                        answer = result.get("answer", "No answer returned.")
-                    except Exception as exc:
-                        st.error(f"Pipeline error: {exc}")
+                        from text_to_pandas_fix import text_to_pandas_answer_voice
+                        answer = text_to_pandas_answer_voice(question_text)
+                    except Exception as e:
+                        answer = f"T2P error: {e}"
+                    sys.path.pop(0)
+                else:
+                    if not _PIPELINE_OK:
+                        st.error(f"Pipeline not available: {_PIPELINE_ERR}")
                         answer = None
+                    elif not GROQ_API_KEY:
+                        st.error("GROQ_API_KEY missing — cannot query the pipeline.")
+                        answer = None
+                    else:
+                        try:
+                            result = run_pipeline(
+                                question=augmented_q,
+                                patient_id=full_id,
+                            )
+                            answer = result.get("answer", "No answer returned.")
+                        except Exception as exc:
+                            st.error(f"Pipeline error: {exc}")
+                            answer = None
             else:
                 answer = None
                 st.warning(
@@ -745,14 +890,15 @@ with tab2:
                 placeholder="What conditions were diagnosed in Wave 5?",
                 key="tab2_question",
             )
-            st.markdown("""
-<div style="background:#3a2a1a;border:1px solid #E8A838;border-radius:6px;
-padding:8px 12px;margin-bottom:8px;font-size:12px;color:#FFD080">
-<strong>⚠ Answer accuracy: ~42% overall</strong> — Lookup questions: 80% accurate.
-Trend questions: 24% accurate. Multi-hop: 0% accurate.
-Use Text-to-Pandas toggle for 100% accuracy.
-</div>
-""", unsafe_allow_html=True)
+            with st.expander("ℹ About answer accuracy", expanded=False):
+                st.markdown("""
+**Knowledge Graph pipeline accuracy:**
+- Lookup questions: ~80% accurate
+- Trend questions: ~24% accurate
+- Multi-hop questions: ~0% accurate
+
+**For 100% accurate answers:** Use the pipeline toggle in the Voice Query tab to switch to Text-to-Pandas.
+""")
             if st.button("Ask", type="primary", key="tab2_ask"):
                 if not q_input.strip():
                     st.warning("Please enter a question.")
