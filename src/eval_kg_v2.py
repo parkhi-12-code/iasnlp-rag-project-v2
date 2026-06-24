@@ -35,7 +35,14 @@ for i, row in qa_df.iterrows():
 
     # Get answer from Graph RAG
     try:
-        predicted = str(run_pipeline(augmented))
+        result = run_pipeline(augmented)
+        if isinstance(result, dict):
+            predicted = str(
+                result.get('answer',
+                result.get('response',
+                result.get('text', str(result)))))
+        else:
+            predicted = str(result)
     except Exception as e:
         predicted = f"ERROR: {e}"
         time.sleep(10)
