@@ -173,7 +173,7 @@ def main():
     print(f"Loaded {len(df)} questions from qa_pairs_v2.csv")
     print(f"Categories: {df['category'].value_counts().to_dict()}\n")
     print("=" * 70)
-    print("Running Text-to-Pandas on all 50 v2 questions (2s sleep between calls)")
+    print("Running Text-to-Pandas on all 50 v2 questions (4s sleep between calls)")
     print("=" * 70)
 
     rows = []
@@ -185,7 +185,7 @@ def main():
 
         print(f"[{i:2d}/50] {cat:<11s}  {qid}", end="", flush=True)
         pred  = text_to_pandas_answer(q)
-        time.sleep(2)
+        time.sleep(4)
 
         ok    = fuzzy_grade(gold, pred)
         grade = "correct" if ok else "incorrect"
