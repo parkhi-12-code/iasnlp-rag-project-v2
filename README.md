@@ -1,29 +1,44 @@
-# IASNLP RAG Project v2 — Knowledge Graph-Based Retrieval over Longitudinal Patient Data
+# RAG for Temporal TableQA as a Conversational AI
 
-**IIIT-Hyderabad · Information Access and Search (IASNLP) · 2026**
+** Best Use Case Project — IASNLP Summer School 2026**
+**14th IIIT Advanced Summer School on Natural Language Processing**
+**IIIT-Hyderabad · June 2026**
+
+> *Does better retrieval alone solve temporal reasoning over longitudinal tabular data, or does it require symbolic computation?*
 
 ---
 
-## Research Question
+## Overview
 
-> **Does better retrieval alone solve temporal reasoning over longitudinal tabular data, or does it require symbolic computation?**
+This project benchmarks four architecturally distinct approaches to question answering over longitudinal patient health records. The dataset is Synthea synthetic EHR data spanning 30 years and 352,233 rows across four relational tables. The central finding: **retrieval quality alone is insufficient — symbolic computation is the correct architectural choice for temporal multi-hop reasoning.**
 
-This project benchmarks four retrieval-augmented generation (RAG) approaches on a dataset of Synthea longitudinal patient records, focusing on whether graph-based retrieval improves over vector-similarity methods for temporal and multi-hop questions.
+**Team:** Parkhi Yadav · Vijaya Lakshmi · Jeevitha Sasi
+
+---
+
+## Results at a Glance
+
+| Approach | Lookup | Trend | Aggregate | Multi-hop | Overall |
+|---|---|---|---|---|---|
+| Naive RAG | 20% | 0% | 16% | 8% | **11%** |
+| Metadata Filtering | 48% | 8% | 28% | 8% | **23%** |
+| Knowledge Graph (v2) | 80% | 24% | 64% | 0% | **42%** |
+| Text-to-Pandas | 100% | 100% | 100% | 100% | **100%** |
 
 ---
 
 ## Dataset
 
-**Source:** [Synthea](https://synthetichealth.github.io/synthea/) synthetic patient records simulating longitudinal EHR data.
+Source: [Synthea](https://synthetichealth.github.io/synthea/) synthetic longitudinal patient records.
 
-| File | Rows | Description |
+| File | Rows | Contains |
 |---|---|---|
-| `data/raw/patients.csv` | 1,171 | Demographics, birthdate, location |
-| `data/raw/conditions.csv` | 8,376 | Diagnoses with START/STOP dates |
-| `data/raw/observations.csv` | 299,697 | Vitals and lab readings with timestamps |
-| `data/raw/medications.csv` | 42,989 | Prescriptions with START/STOP dates |
+| `patients.csv` | 1,171 | Demographics, birthdate, location |
+| `conditions.csv` | 8,376 | Diagnoses with START/STOP dates |
+| `observations.csv` | 299,697 | Vitals and lab readings with timestamps |
+| `medications.csv` | 42,989 | Prescriptions with START/STOP dates |
 
-**Wave Structure:** Data is binned into 5-year longitudinal waves using the event date column of each table.
+**Wave structure** — data is binned into 5-year longitudinal waves:
 
 | Wave | Years | Wave | Years |
 |---|---|---|---|
@@ -32,104 +47,117 @@ This project benchmarks four retrieval-augmented generation (RAG) approaches on 
 | Wave 3 | 2000–2004 | Wave 7 | 2020+ |
 | Wave 4 | 2005–2009 | | |
 
-**Benchmark:** `benchmark/qa_pairs_final.csv` — 100 questions (25 per category), verified gold answers, do not modify.
-
 ---
 
-## Approaches
+## Four Approaches
 
-### 1. Naive RAG (Baseline)
-Text chunks from each CSV row are embedded with a sentence-transformer model and stored in a vector index. At query time, top-k chunks are retrieved by cosine similarity and passed to the LLM. Has no understanding of wave structure, patient identity, or temporal ordering. Temporal questions fail almost entirely because the relevant chunks may not rank highly by semantic similarity alone.
+### 1. Naive RAG — Baseline (11%)
+CSV rows are converted to text chunks, embedded with a sentence-transformer, and stored in a vector index. At query time, top-k chunks are retrieved by cosine similarity and passed to the LLM. No wave awareness, no patient identity, no temporal ordering. Trend questions fail almost entirely.
 
-### 2. Metadata Filtering
-Extends Naive RAG with a pre-filtering step: patient ID and wave number are extracted from the question and used to hard-filter the chunk pool before similarity search. This improves lookup accuracy substantially but still passes flat text to the LLM, making averaging, counting, and cross-table joins difficult.
+### 2. Metadata Filtering (23%)
+Extends Naive RAG with a pre-filtering step: patient ID and wave number are extracted from the question and used to hard-filter the chunk pool before similarity search. Improves lookup substantially but flat text still reaches the LLM — averaging, counting, and cross-table joins remain broken.
 
-### 3. Knowledge Graph RAG (v2 — this project)
-Builds a NetworkX heterogeneous graph with five node types (Patient, Wave, Condition, Observation, Medication) and five edge types (appeared_in, diagnosed_with, measured, prescribed, contains). At query time, patient ID and wave(s) are extracted, the relevant subgraph is traversed, and a structured text context is passed to the LLM (llama-3.3-70b-versatile via Groq). Graph traversal guarantees patient-wave isolation and eliminates irrelevant context. Lookup and aggregate accuracy improve dramatically; however, trend averaging and multi-hop cross-table joins remain beyond the context format.
+### 3. Knowledge Graph RAG — v2 (42%)
+Builds a NetworkX heterogeneous graph with **315,774 nodes** and **633,571 edges** across five node types (`Patient`, `Wave`, `Condition`, `Observation`, `Medication`) and five edge types (`appeared_in`, `diagnosed_with`, `measured`, `prescribed`, `contains`). At query time, patient ID and wave(s) are extracted, the relevant subgraph is traversed, and structured context is passed to the LLM (`llama-3.3-70b-versatile` via Groq). Graph traversal guarantees patient-wave isolation. Lookup improves from 20% → 80% (+60 points over Naive RAG). Multi-hop fails at 0% — the data is retrieved correctly but the LLM cannot compute cross-table arithmetic from a context string.
 
-### 4. Text-to-Pandas (Oracle Upper Bound)
-The LLM generates pandas code to query the raw DataFrames directly. Provides exact symbolic computation — averages, counts, joins, pre/post-diagnosis comparisons — with no retrieval step. Achieves 100% on all categories and serves as the upper bound for what is achievable with the available data.
-
----
-
-## Results
-
-| Approach | Lookup | Trend | Aggregate | Multi-hop | Overall |
-|---|---|---|---|---|---|
-| Naive RAG | 20% | 0% | 16% | 8% | 11% |
-| Metadata Filtering | 48% | 8% | 28% | 8% | 23% |
-| **Knowledge Graph (v2)** | **80%** | **24%** | **64%** | **0%** | **42%** |
-| Text-to-Pandas (oracle) | 100% | 100% | 100% | 100% | 100% |
-
-Full data: [`benchmark/comparison_table.csv`](benchmark/comparison_table.csv)  
-Comparison chart: [`benchmark/charts/comparison_chart.png`](benchmark/charts/comparison_chart.png)
+### 4. Text-to-Pandas — Oracle Upper Bound (100%)
+The LLM generates pandas code to query the raw DataFrames directly. Provides exact symbolic computation — averages, counts, joins, pre/post-diagnosis comparisons — with no retrieval step at all. Achieves 100% across all categories. **This is the upper bound and the architectural answer.**
 
 ---
 
 ## Key Findings
 
-- **Graph retrieval dominates lookup (+60 pp over Naive RAG, +32 pp over Metadata Filtering):** Guaranteed patient-wave subgraph isolation eliminates irrelevant context, making simple lookup nearly solved.
-- **Trend questions expose an averaging gap:** The retriever passes only the most-recent observation per measurement type per wave. Gold answers require the average of all readings. 13 of 19 trend failures are `MISSING_EDGE` — the data exists but is not aggregated in the context.
-- **Multi-hop is a computation problem, not a retrieval problem:** All 25 multi-hop failures are `CROSS_TABLE` — they require joining condition diagnosis dates with observation time-series and computing pre/post averages, which the LLM cannot do from a flat text context regardless of how good the retrieval is. Text-to-Pandas solves all 25 trivially.
-- **The research question is answered:** Better retrieval alone (graph vs. vector) is insufficient for temporal reasoning over longitudinal data. The remaining 58% gap to the oracle upper bound is attributable primarily to symbolic computation requirements (averaging, counting, cross-table joins), not retrieval quality.
+**Finding 1 — Graph retrieval dominates lookup (+60 pp over Naive RAG):**
+Guaranteed patient-wave subgraph isolation eliminates irrelevant context and makes simple lookup nearly solved.
+
+**Finding 2 — Trend questions expose an averaging gap:**
+13 of 19 trend failures are `MISSING_EDGE` — the data exists in the graph but is not aggregated in the context. The retriever passes the most-recent observation per wave; gold answers require the average of all readings.
+
+**Finding 3 — Multi-hop is a computation problem, not a retrieval problem:**
+All 25 multi-hop failures are `CROSS_TABLE` — they require joining condition diagnosis dates with observation time-series and computing pre/post averages. The LLM cannot do this from a flat text context regardless of retrieval quality. Text-to-Pandas solves all 25 trivially.
+
+**Finding 4 — The research question is answered:**
+Better retrieval alone is insufficient for temporal reasoning over longitudinal data. The 58-point gap between Knowledge Graph (42%) and the oracle upper bound (100%) is attributable to symbolic computation requirements — not retrieval quality.
 
 ---
 
-## Patient Deep Dive
+## Patient Cohort Deep Dive
 
-Three patients were selected for longitudinal cohort analysis (see [`benchmark/patient_deep_dive_results.json`](benchmark/patient_deep_dive_results.json)):
+Three patients were selected algorithmically for longitudinal cohort analysis.
 
 | Role | Patient ID | Waves | Conditions | Key Feature |
 |---|---|---|---|---|
-| Star | `3f336702` | 7 | 22 unique | Coronary Heart Disease persistent across 6 waves; 7× condition burden increase |
-| Contrast | `1930a1b6` | 7 | 1 | Most stable patient; maximum wave coverage with minimal disease |
-| Comorbid | `3b95da79` | 7 | 14 | Both Hypertension and Diabetes from Wave 2; monotonically increasing burden |
+| ★ Star | `3f336702` | 7 | 22 unique | Coronary Heart Disease persistent across 6 waves; 7× condition burden increase |
+| ◇ Contrast | `1930a1b6` | 7 | 1 | Most stable patient; maximum wave coverage with minimal disease burden |
+| ⊕ Comorbid | `3b95da79` | 7 | 14 | Both Hypertension and Diabetes from Wave 2; monotonically increasing burden |
 
-Clinical narrative summaries: [`benchmark/cohort_summary.txt`](benchmark/cohort_summary.txt)  
-Charts: [`benchmark/charts/`](benchmark/charts/)
+Clinical narrative summaries: `benchmark/cohort_summary.txt`
 
 ---
 
-## How to Run Everything
+## How to Run
 
-```powershell
-# 0. Set up environment (once)
-cd E:\iasnlp-rag-project-v2
+```bash
+# 0. Set up environment
+cd iasnlp-rag-project-v2
 python -m venv venv
-.\venv\Scripts\Activate.ps1
+.\venv\Scripts\Activate.ps1      # Windows
 pip install -r requirements.txt
 
-# 1. Add your Groq API key to .env
+# 1. Add Groq API key to .env
 #    GROQ_API_KEY=gsk_...
 
 # 2. Build the knowledge graph (~2 min, no API key needed)
-python src\graph_builder.py
+python src/graph_builder.py
 
-# 3. Verify graph + retriever (spot-check)
-python src\graph_retriever.py 9358d6df 5
+# 3. Verify graph + retriever
+python src/graph_retriever.py 9358d6df 5
 
 # 4. Test a single pipeline question end-to-end
-python src\graph_rag_pipeline.py
+python src/graph_rag_pipeline.py
 
 # 5. Run full evaluation (~7 min, uses Groq API)
-python src\eval_harness_v2.py
+python src/eval_harness_v2.py
 
 # 6. Patient cohort deep dive (no API key needed)
-python src\patient_deep_dive.py
+python src/patient_deep_dive.py
 
-# 7. Open the notebook for visual exploration
-jupyter notebook notebooks\day1_explore.ipynb
+# 7. Visual exploration
+jupyter notebook notebooks/day1_explore.ipynb
 ```
 
-**Output files produced:**
+---
+
+## Output Files
 
 | File | Description |
 |---|---|
-| `data/knowledge_graph.gpickle` | Serialized NetworkX graph |
+| `data/knowledge_graph.gpickle` | Serialised NetworkX graph |
+| `benchmark/qa_pairs_final.csv` | 100-question benchmark — do not modify |
 | `benchmark/graph_rag_results.csv` | Per-question results with predicted answers |
 | `benchmark/graph_rag_failure_log.csv` | Failures only |
-| `benchmark/failure_analysis.csv` | Failures with `failure_bucket` categorization |
+| `benchmark/failure_analysis.csv` | Failures with `failure_bucket` categorisation |
 | `benchmark/comparison_table.csv` | All 4 approaches × 5 categories |
-| `benchmark/patient_deep_dive_results.json` | 15+5+5 question analysis |
+| `benchmark/patient_deep_dive_results.json` | 15+5+5 question cohort analysis |
 | `benchmark/cohort_summary.txt` | Clinical narratives |
-| `benchmark/charts/` | All 5 matplotlib charts |
+| `benchmark/charts/` | All matplotlib charts |
+
+---
+
+## Tech Stack
+
+`Python` · `pandas` · `NetworkX` · `sentence-transformers` · `Groq API` · `llama-3.3-70b-versatile` · `Streamlit` · `Whisper` · `gTTS` · `matplotlib`
+
+---
+
+## Citation / Reference
+
+If you use this project or build on it, please reference:
+
+```
+Parkhi Yadav
+RAG for Temporal TableQA as a Conversational AI
+IASNLP Summer School 2026, IIIT-Hyderabad
+
+github.com/parkhi-12-code/iasnlp-rag-project-v2
+```
