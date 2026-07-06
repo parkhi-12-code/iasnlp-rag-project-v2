@@ -1,0 +1,21 @@
+question_id,category,patient_id,wave_reference,question,answer,verified,notes,temporal
+COMO_C01,comorbidity,b118adba,Wave 3,How many conditions were simultaneously active for patient b118adba in Wave 3?,3,correct,deterministic,True
+COMO_C02,comorbidity,b118adba,Wave 5,How many conditions were simultaneously active for patient b118adba in Wave 5?,13,correct,13 = 12 chronic (STOP null) + 1 resolved acute (Sinusitis 2013-09-21 to 2014-01-04) fully contained in Wave 5; counted over distinct conditions via nunique,True
+COMO_C03,comorbidity,b118adba,Wave 6,How many conditions were simultaneously active for patient b118adba in Wave 6?,12,correct,deterministic,True
+COMO_C04,comorbidity,3f336702,Wave 2,How many conditions were simultaneously active for patient 3f336702 in Wave 2?,16,correct,deterministic,True
+COMO_C05,comorbidity,3f336702,Wave 4,How many conditions were simultaneously active for patient 3f336702 in Wave 4?,18,correct,deterministic,True
+COMO_C06,comorbidity,3f336702,Wave 5,How many conditions were simultaneously active for patient 3f336702 in Wave 5?,19,correct,"19 distinct conditions; two Viral sinusitis episodes (2010, 2011) collapse to 1 via nunique — count is over distinct conditions, not condition-events",True
+COMO_B01,comorbidity,3f336702,All waves,Were Coronary Heart Disease and Atrial Fibrillation ever simultaneously active for patient 3f336702?,Yes — both active during wave 2.,correct,deterministic,True
+COMO_B02,comorbidity,3f336702,All waves,Were Diabetes and Stroke ever simultaneously active for patient 3f336702?,Yes — both active during wave 3.,correct,deterministic,True
+COMO_B03,comorbidity,3f336702,All waves,Were Alzheimer's disease (disorder) and Diabetic renal disease (disorder) ever simultaneously active for patient 3f336702?,Yes — both active during wave 3.,correct,deterministic,True
+COMO_B04,comorbidity,b118adba,All waves,Were Hypertension and Anemia (disorder) ever simultaneously active for patient b118adba?,Yes — both active during wave 3.,correct,deterministic,True
+COMO_B05,comorbidity,b118adba,All waves,Were Hypertension and Metabolic syndrome X (disorder) ever simultaneously active for patient b118adba?,Yes — both active during wave 4.,correct,deterministic,True
+COMO_D01,comorbidity,b118adba,All waves,Across how many waves was Hypertension active for patient b118adba?,7,correct,deterministic,True
+COMO_D02,comorbidity,b118adba,All waves,Across how many waves was Diabetes active for patient b118adba?,5,correct,deterministic,True
+COMO_D03,comorbidity,3f336702,All waves,Across how many waves was Coronary Heart Disease active for patient 3f336702?,6,correct,deterministic,True
+COMO_D04,comorbidity,3f336702,All waves,Across how many waves was Atrial Fibrillation active for patient 3f336702?,7,correct,deterministic,True
+COMO_D05,comorbidity,3f336702,All waves,Across how many waves was Alzheimer's disease (disorder) active for patient 3f336702?,5,correct,deterministic,True
+COMO_X01,comorbidity,3f336702,Wave 6,How many conditions were simultaneously active for patient 3f336702 in Wave 6?,21,correct,CONTRAST: event-based=3 via handle_lookup_condition WAVE==6; interval=21,True
+COMO_X02,comorbidity,b118adba,Wave 4,How many conditions were simultaneously active for patient b118adba in Wave 4?,7,correct,CONTRAST: event-based=4 via handle_lookup_condition WAVE==4; interval=7,True
+COMO_X03,comorbidity,3f336702,Wave 3,How many conditions were simultaneously active for patient 3f336702 in Wave 3?,18,correct,CONTRAST: event-based=2 via handle_lookup_condition WAVE==3; interval=18,True
+COMO_X04,comorbidity,b118adba,All waves,Were Hypertension and Diabetes ever simultaneously active for patient b118adba?,Yes — both active during wave 3.,correct,CONTRAST: old system lacks named-pair co-occurrence handler — no handler accepts condition_a/condition_b args; interval=Yes — both active during wave 3.,True
