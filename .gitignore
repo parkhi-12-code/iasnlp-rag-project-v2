@@ -11,3 +11,4 @@ __pycache__/
 run_*.txt
 diag.txt
 benchmark/eval_extended_output.txt
+~$*
