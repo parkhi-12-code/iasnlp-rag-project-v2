@@ -1,0 +1,21 @@
+question_id,section,question,gold,pred,pass
+COMO_C01,count,How many conditions were simultaneously active for patient b118adba in Wave 3?,3,3,True
+COMO_C02,count,How many conditions were simultaneously active for patient b118adba in Wave 5?,13,13,True
+COMO_C03,count,How many conditions were simultaneously active for patient b118adba in Wave 6?,12,12,True
+COMO_C04,count,How many conditions were simultaneously active for patient 3f336702 in Wave 2?,16,16,True
+COMO_C05,count,How many conditions were simultaneously active for patient 3f336702 in Wave 4?,18,18,True
+COMO_C06,count,How many conditions were simultaneously active for patient 3f336702 in Wave 5?,19,19,True
+COMO_B01,boolean,Were Coronary Heart Disease and Atrial Fibrillation ever simultaneously active for patient 3f336702?,Yes — both active during wave 2.,Yes — both active during wave 2.,True
+COMO_B02,boolean,Were Diabetes and Stroke ever simultaneously active for patient 3f336702?,Yes — both active during wave 3.,Yes — both active during wave 3.,True
+COMO_B03,boolean,Were Alzheimer's disease (disorder) and Diabetic renal disease (disorder) ever simultaneously active for patient 3f336702?,Yes — both active during wave 3.,Yes — both active during wave 3.,True
+COMO_B04,boolean,Were Hypertension and Anemia (disorder) ever simultaneously active for patient b118adba?,Yes — both active during wave 3.,Yes — both active during wave 3.,True
+COMO_B05,boolean,Were Hypertension and Metabolic syndrome X (disorder) ever simultaneously active for patient b118adba?,Yes — both active during wave 4.,Yes — both active during wave 4.,True
+COMO_D01,duration,Across how many waves was Hypertension active for patient b118adba?,7,7,True
+COMO_D02,duration,Across how many waves was Diabetes active for patient b118adba?,5,5,True
+COMO_D03,duration,Across how many waves was Coronary Heart Disease active for patient 3f336702?,6,6,True
+COMO_D04,duration,Across how many waves was Atrial Fibrillation active for patient 3f336702?,7,7,True
+COMO_D05,duration,Across how many waves was Alzheimer's disease (disorder) active for patient 3f336702?,5,5,True
+COMO_X01,contrast,How many conditions were simultaneously active for patient 3f336702 in Wave 6?,21,21,True
+COMO_X02,contrast,How many conditions were simultaneously active for patient b118adba in Wave 4?,7,7,True
+COMO_X03,contrast,How many conditions were simultaneously active for patient 3f336702 in Wave 3?,18,18,True
+COMO_X04,contrast,Were Hypertension and Diabetes ever simultaneously active for patient b118adba?,Yes — both active during wave 3.,Yes — both active during wave 3.,True

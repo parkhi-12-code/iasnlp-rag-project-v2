@@ -19,6 +19,12 @@ load_dotenv()
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import data_utils
 import eval_harness
+from comorbidity_router import (
+    extract_comorbidity_spec,
+    handle_comorbidity_count,
+    handle_conditions_cooccur,
+    handle_condition_duration_waves,
+)
 
 _HERE = os.path.dirname(os.path.abspath(__file__))
 BASE  = os.path.dirname(_HERE)
@@ -1559,11 +1565,23 @@ _HANDLERS = {
     "bmi_at_first_med":             handle_bmi_at_first_med,
     "conditions_by_decade":         handle_conditions_by_decade,
     "obs_before_first_condition":   handle_obs_before_first_condition,
+    # comorbidity handlers (H35/H36/H37) -- routed via extract_comorbidity_spec,
+    # never via the LLM extractor; see text_to_pandas_answer() below.
+    "comorbidity_count":            handle_comorbidity_count,
+    "conditions_cooccur":           handle_conditions_cooccur,
+    "condition_duration_waves":     handle_condition_duration_waves,
 }
 
 
 def text_to_pandas_answer(question: str) -> str:
     """Extract a query spec via Groq, then compute the answer with pandas."""
+    comorbidity_spec = extract_comorbidity_spec(question)
+    if comorbidity_spec is not None:
+        try:
+            return _HANDLERS[comorbidity_spec["category"]](comorbidity_spec)
+        except Exception as exc:
+            return f"ERROR: {exc}"
+
     time.sleep(0.5)    # stay inside Groq rate limits
     spec = extract_spec(question)
     if spec is None:
