@@ -1,0 +1,65 @@
+<svg viewBox="0 0 860 560" xmlns="http://www.w3.org/2000/svg" font-family="Segoe UI, Arial, sans-serif">
+  <rect width="860" height="560" fill="#ffffff"/>
+  <text x="430" y="34" text-anchor="middle" font-size="22" font-weight="700" fill="#1a1a2e">Additive Routing Architecture</text>
+  <text x="430" y="58" text-anchor="middle" font-size="13" fill="#555">Deterministic comorbidity path sits in front of the untouched LLM path — locked benchmark provably unaffected</text>
+
+  <!-- Question -->
+  <rect x="350" y="82" width="160" height="44" rx="8" fill="#1a1a2e"/>
+  <text x="430" y="109" text-anchor="middle" font-size="14" font-weight="600" fill="#fff">Question (string)</text>
+  <line x1="430" y1="126" x2="430" y2="150" stroke="#333" stroke-width="1.5"/>
+  <polygon points="430,150 425,142 435,142" fill="#333"/>
+
+  <!-- Regex prepend decision -->
+  <polygon points="430,152 560,205 430,258 300,205" fill="#fff4e0" stroke="#e08e0b" stroke-width="1.5"/>
+  <text x="430" y="198" text-anchor="middle" font-size="12.5" font-weight="700" fill="#a8690a">extract_comorbidity_spec()</text>
+  <text x="430" y="216" text-anchor="middle" font-size="11" fill="#a8690a">pure regex · no network call</text>
+
+  <!-- YES branch -->
+  <text x="250" y="200" text-anchor="middle" font-size="12" font-weight="700" fill="#2a9d5c">match</text>
+  <line x1="300" y1="205" x2="150" y2="205" stroke="#2a9d5c" stroke-width="1.5"/>
+  <polygon points="150,205 158,200 158,210" fill="#2a9d5c"/>
+
+  <rect x="18" y="250" width="264" height="220" rx="10" fill="#e7f5ec" stroke="#2a9d5c" stroke-width="1.5"/>
+  <text x="150" y="276" text-anchor="middle" font-size="13" font-weight="700" fill="#1b7a44">COMORBIDITY PATH (new)</text>
+  <text x="150" y="296" text-anchor="middle" font-size="11" fill="#155e34">deterministic · 0 Groq tokens</text>
+
+  <rect x="40" y="312" width="220" height="34" rx="6" fill="#fff" stroke="#2a9d5c"/>
+  <text x="150" y="334" text-anchor="middle" font-size="11.5" fill="#155e34">exact-match condition names vs.</text>
+  <rect x="40" y="350" width="220" height="20" rx="6" fill="#fff" stroke="#2a9d5c"/>
+  <text x="150" y="364" text-anchor="middle" font-size="10.5" fill="#155e34">conditions["DESCRIPTION"].unique()</text>
+
+  <rect x="40" y="382" width="220" height="76" rx="6" fill="#fff" stroke="#2a9d5c"/>
+  <text x="150" y="402" text-anchor="middle" font-size="11.5" font-weight="600" fill="#155e34">Interval handlers</text>
+  <text x="150" y="420" text-anchor="middle" font-size="11" fill="#155e34">H35 co-occurrence · H36 duration</text>
+  <text x="150" y="436" text-anchor="middle" font-size="11" fill="#155e34">H37 per-wave count</text>
+  <text x="150" y="452" text-anchor="middle" font-size="10.5" fill="#888">pandas on raw CSV → exact answer</text>
+
+  <!-- NO branch -->
+  <text x="610" y="200" text-anchor="middle" font-size="12" font-weight="700" fill="#c1121f">None</text>
+  <line x1="560" y1="205" x2="710" y2="205" stroke="#777" stroke-width="1.5"/>
+  <polygon points="710,205 702,200 702,210" fill="#777"/>
+
+  <rect x="578" y="250" width="264" height="220" rx="10" fill="#f2f2f7" stroke="#8888aa" stroke-width="1.5"/>
+  <text x="710" y="276" text-anchor="middle" font-size="13" font-weight="700" fill="#43436a">EXISTING PATH (untouched)</text>
+  <text x="710" y="296" text-anchor="middle" font-size="11" fill="#5a5a7a">byte-identical to before</text>
+
+  <rect x="600" y="312" width="220" height="34" rx="6" fill="#fff" stroke="#8888aa"/>
+  <text x="710" y="333" text-anchor="middle" font-size="11.5" fill="#43436a">extract_spec() — Groq LLM</text>
+
+  <rect x="600" y="352" width="220" height="34" rx="6" fill="#fff" stroke="#8888aa"/>
+  <text x="710" y="373" text-anchor="middle" font-size="11.5" fill="#43436a">54 existing handlers</text>
+
+  <rect x="600" y="392" width="220" height="66" rx="6" fill="#fff" stroke="#8888aa"/>
+  <text x="710" y="414" text-anchor="middle" font-size="11.5" font-weight="600" fill="#43436a">Locked 100Q benchmark</text>
+  <text x="710" y="432" text-anchor="middle" font-size="11" fill="#43436a">0/100 match comorbidity template</text>
+  <text x="710" y="448" text-anchor="middle" font-size="11" fill="#43436a">→ all fall through here, unchanged</text>
+
+  <!-- Converge -->
+  <line x1="150" y1="470" x2="150" y2="500" stroke="#333" stroke-width="1.5"/>
+  <line x1="710" y1="470" x2="710" y2="500" stroke="#333" stroke-width="1.5"/>
+  <line x1="150" y1="500" x2="710" y2="500" stroke="#333" stroke-width="1.5"/>
+  <line x1="430" y1="500" x2="430" y2="522" stroke="#333" stroke-width="1.5"/>
+  <polygon points="430,522 425,514 435,514" fill="#333"/>
+  <rect x="350" y="524" width="160" height="34" rx="8" fill="#1a1a2e"/>
+  <text x="430" y="546" text-anchor="middle" font-size="13" font-weight="600" fill="#fff">Answer</text>
+</svg>

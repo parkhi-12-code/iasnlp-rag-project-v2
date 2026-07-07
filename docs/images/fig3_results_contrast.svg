@@ -1,0 +1,74 @@
+<svg viewBox="0 0 860 540" xmlns="http://www.w3.org/2000/svg" font-family="Segoe UI, Arial, sans-serif">
+  <rect width="860" height="540" fill="#ffffff"/>
+  <text x="430" y="34" text-anchor="middle" font-size="22" font-weight="700" fill="#1a1a2e">Results: Closing the Comorbidity Gap</text>
+
+  <!-- Headline 0 -> 100 -->
+  <rect x="40" y="60" width="360" height="120" rx="12" fill="#f7f7fb" stroke="#ddd"/>
+  <text x="220" y="86" text-anchor="middle" font-size="13" font-weight="600" fill="#555">Comorbidity benchmark accuracy</text>
+  <text x="130" y="150" text-anchor="middle" font-size="46" font-weight="800" fill="#c1121f">0%</text>
+  <text x="130" y="172" text-anchor="middle" font-size="11.5" fill="#888">prior (KG &amp; T2P)</text>
+  <text x="220" y="145" text-anchor="middle" font-size="26" fill="#999">→</text>
+  <text x="310" y="150" text-anchor="middle" font-size="46" font-weight="800" fill="#2a9d5c">100%</text>
+  <text x="310" y="172" text-anchor="middle" font-size="11.5" fill="#888">interval handlers (20/20)</text>
+
+  <!-- Section breakdown -->
+  <rect x="420" y="60" width="400" height="120" rx="12" fill="#f7f7fb" stroke="#ddd"/>
+  <text x="620" y="86" text-anchor="middle" font-size="13" font-weight="600" fill="#555">Per-section (all offline, 0 Groq tokens)</text>
+  <g font-size="12.5" fill="#333">
+    <text x="450" y="116">Count (H37)</text><text x="800" y="116" text-anchor="end" font-weight="700" fill="#2a9d5c">6 / 6</text>
+    <text x="450" y="138">Boolean co-occurrence (H35)</text><text x="800" y="138" text-anchor="end" font-weight="700" fill="#2a9d5c">5 / 5</text>
+    <text x="450" y="160">Duration (H36)</text><text x="800" y="160" text-anchor="end" font-weight="700" fill="#2a9d5c">5 / 5</text>
+  </g>
+
+  <!-- Contrast bars -->
+  <text x="40" y="222" font-size="15" font-weight="700" fill="#1a1a2e">Contrast questions — event-based undercounting of active burden</text>
+  <text x="40" y="242" font-size="11.5" fill="#777">Both numbers computed by running real code (event handler vs. interval handler) on real patients.</text>
+
+  <!-- scale: y baseline 470, top 270 => 200px for value 21 => ~9.5px per unit -->
+  <line x1="120" y1="470" x2="800" y2="470" stroke="#999" stroke-width="1.5"/>
+
+  <!-- helper: bars per group -->
+  <!-- X01 Sanford W6: 3 vs 21 -->
+  <g>
+    <rect x="150" y="442" width="40" height="28" fill="#e63946"/>
+    <text x="170" y="436" text-anchor="middle" font-size="12" font-weight="700" fill="#c1121f">3</text>
+    <rect x="196" y="272" width="40" height="198" fill="#2a9d5c"/>
+    <text x="216" y="266" text-anchor="middle" font-size="12" font-weight="700" fill="#1b7a44">21</text>
+    <text x="193" y="490" text-anchor="middle" font-size="11.5" fill="#333">X01</text>
+    <text x="193" y="505" text-anchor="middle" font-size="10" fill="#888">Sanford W6</text>
+  </g>
+  <!-- X03 Sanford W3: 2 vs 18 -->
+  <g>
+    <rect x="310" y="451" width="40" height="19" fill="#e63946"/>
+    <text x="330" y="445" text-anchor="middle" font-size="12" font-weight="700" fill="#c1121f">2</text>
+    <rect x="356" y="300" width="40" height="170" fill="#2a9d5c"/>
+    <text x="376" y="294" text-anchor="middle" font-size="12" font-weight="700" fill="#1b7a44">18</text>
+    <text x="353" y="490" text-anchor="middle" font-size="11.5" fill="#333">X03</text>
+    <text x="353" y="505" text-anchor="middle" font-size="10" fill="#888">Sanford W3</text>
+  </g>
+  <!-- X02 Kelly W4: 4 vs 7 -->
+  <g>
+    <rect x="470" y="432" width="40" height="38" fill="#e63946"/>
+    <text x="490" y="426" text-anchor="middle" font-size="12" font-weight="700" fill="#c1121f">4</text>
+    <rect x="516" y="404" width="40" height="66" fill="#2a9d5c"/>
+    <text x="536" y="398" text-anchor="middle" font-size="12" font-weight="700" fill="#1b7a44">7</text>
+    <text x="513" y="490" text-anchor="middle" font-size="11.5" fill="#333">X02</text>
+    <text x="513" y="505" text-anchor="middle" font-size="10" fill="#888">Kelly W4</text>
+  </g>
+  <!-- X04 Kelly HTN+Diabetes: cannot express vs Yes -->
+  <g>
+    <rect x="630" y="440" width="40" height="30" fill="#e63946" opacity="0.35"/>
+    <text x="650" y="434" text-anchor="middle" font-size="10.5" font-weight="700" fill="#c1121f">n/a</text>
+    <rect x="676" y="410" width="40" height="60" fill="#2a9d5c"/>
+    <text x="696" y="404" text-anchor="middle" font-size="12" font-weight="700" fill="#1b7a44">Yes</text>
+    <text x="673" y="490" text-anchor="middle" font-size="11.5" fill="#333">X04</text>
+    <text x="673" y="505" text-anchor="middle" font-size="10" fill="#888">HTN+Diab.</text>
+  </g>
+
+  <!-- legend -->
+  <rect x="150" y="516" width="14" height="14" fill="#e63946"/>
+  <text x="170" y="528" font-size="11.5" fill="#333">event-based (old)</text>
+  <rect x="300" y="516" width="14" height="14" fill="#2a9d5c"/>
+  <text x="320" y="528" font-size="11.5" fill="#333">interval-overlap (ours)</text>
+  <text x="500" y="528" font-size="11" fill="#999" font-style="italic">X04: old system cannot express named-pair co-occurrence (capability gap)</text>
+</svg>
