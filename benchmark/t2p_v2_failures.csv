@@ -1,2 +1,2 @@
 question_id,category,patient_id,question,gold_answer,t2p_answer,grade,failure_reason
-AGG_V2_019,aggregate,0522e580,"What was the total number of distinct conditions, medications, and observation types ever recorded for patient 0522e580?","63 total (7 conditions, 5 medications, 51 obs types)",5 total prescription records,incorrect,no handler: health-burden
+AGG_V2_019,aggregate,0522e580,"What was the total number of distinct conditions, medications, and observation types ever recorded for patient 0522e580?","63 total (7 conditions, 5 medications, 51 obs types)",ERROR: spec extraction failed,incorrect,data-not-found / handler-error

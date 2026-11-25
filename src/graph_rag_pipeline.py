@@ -113,7 +113,7 @@ def _extract_params_llm(question: str) -> dict | None:
     try:
         client = _get_client()
         resp = client.chat.completions.create(
-            model="llama-3.1-8b-instant",
+            model="openai/gpt-oss-120b",
             messages=[
                 {"role": "system", "content": _EXTRACT_SYSTEM},
                 {"role": "user", "content": _EXTRACT_USER.format(question=question)},
@@ -197,7 +197,7 @@ def run_pipeline(
     try:
         client = _get_client()
         resp = client.chat.completions.create(
-            model="llama-3.3-70b-versatile",
+            model="openai/gpt-oss-120b",
             messages=[{
                 "role": "user",
                 "content": _ANSWER_PROMPT.format(context=context, question=question),

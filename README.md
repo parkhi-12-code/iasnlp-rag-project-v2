@@ -1,5 +1,11 @@
+<<<<<<< HEAD
 # RAG for Temporal TableQA as a Conversational AI
 
+=======
+
+# RAG for Temporal TableQA as a Conversational AI
+
+>>>>>>> c297ba6 (Update RAG pipeline and benchmark evaluation)
 ** Best Use Case Project — IASNLP Summer School 2026**
 **14th IIIT Advanced Summer School on Natural Language Processing**
 **IIIT-Hyderabad · June 2026**
@@ -160,4 +166,8 @@ RAG for Temporal TableQA as a Conversational AI
 IASNLP Summer School 2026, IIIT-Hyderabad
 
 github.com/parkhi-12-code/iasnlp-rag-project-v2
+<<<<<<< HEAD
 ```
+=======
+```
+>>>>>>> c297ba6 (Update RAG pipeline and benchmark evaluation)

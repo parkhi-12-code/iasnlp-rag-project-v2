@@ -58,7 +58,7 @@ def _med_waves(full_pid: str) -> "pd.Series":
 
 # ── Groq extraction ────────────────────────────────────────────────────────────
 groq_client = Groq()
-GROQ_MODEL  = "llama-3.1-8b-instant"
+GROQ_MODEL  = "openai/gpt-oss-20b"
 
 _EXTRACTION_PROMPT = """You are a query parser for a clinical database. Output ONLY a valid JSON object.
 
@@ -257,7 +257,7 @@ def extract_spec(question: str, retries: int = 3) -> dict | None:
         try:
             resp = groq_client.chat.completions.create(
                 model=GROQ_MODEL,
-                max_tokens=300,
+                max_tokens=500,
                 temperature=0,
                 messages=[{"role": "user", "content": prompt}],
             )
@@ -1741,3 +1741,4 @@ if __name__ == "__main__":
     _, summary = eval_harness.run_eval(
         bench, text_to_pandas_answer, log_path, "text_to_pandas_fix"
     )
+

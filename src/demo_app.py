@@ -184,32 +184,52 @@ def patient_in_graph(pid: str, G) -> bool:
 
 def _extract_patient_from_question(question: str) -> tuple[str | None, int | None]:
     """Use Groq LLM to extract (first_name, birth_year) from a free-form question."""
+
     if not GROQ_API_KEY:
         return None, None
+
     try:
         from groq import Groq
+
         client = Groq(api_key=GROQ_API_KEY)
+
         prompt = (
             "Extract the patient first name and birth year from this question. "
             "Return ONLY valid JSON with keys \"patient_name\" (string or null) "
             "and \"birth_year\" (integer or null).\n"
             f"Question: {question}"
         )
+
         resp = client.chat.completions.create(
-            model="llama-3.1-8b-instant",
+            model="openai/gpt-oss-20b",
             messages=[{"role": "user", "content": prompt}],
             temperature=0,
-            max_tokens=60,
+            max_tokens=200,
         )
+
+        #raw = resp.choices[0].message.content.strip()
+        print("FULL GROQ RESPONSE:", resp)
         raw = resp.choices[0].message.content.strip()
+        print("CONTENT:", repr(raw))
+
+        print("PATIENT EXTRACTION RAW:", repr(raw))
+
         m = re.search(r"\{.*\}", raw, re.DOTALL)
+
         if m:
             data = json.loads(m.group())
             name = data.get("patient_name") or ""
             year = data.get("birth_year")
-            return (name.strip() or None), (int(year) if year else None)
-    except Exception:
-        pass
+
+            return (
+                name.strip() or None,
+                int(year) if year else None
+            )
+
+    except Exception as e:
+        print("PATIENT EXTRACTION ERROR:", repr(e))
+        return None, None
+
     return None, None
 
 
